@@ -26,6 +26,11 @@ public class MessageReply {
 
     private ReentrantLock lock = new ReentrantLock();
     private Condition condition = lock.newCondition();
+    private String fromAddress;
+
+    public MessageReply(String fromAddress) {
+        this.fromAddress = fromAddress;
+    }
 
     public Message get(long timeout, TimeUnit unit) throws InterruptedException {
         lock.lock();
@@ -55,4 +60,7 @@ public class MessageReply {
 
     }
 
+    public String getFromAddress() {
+        return fromAddress;
+    }
 }

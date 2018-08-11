@@ -17,12 +17,17 @@ import com.kv4j.message.Message;
 import com.kv4j.message.MessageHolder;
 import com.kv4j.server.BasicServer;
 import com.kv4j.server.KV4jConfig;
-import com.kv4j.server.Server;
 import com.kv4j.server.scheduler.ServerScheduler;
 
 import java.util.concurrent.TimeUnit;
 
 public class Follower extends BasicServer {
+
+
+    public Follower(String address) {
+        super(address);
+    }
+
 
     @Override
     public Message process(Message msg) {

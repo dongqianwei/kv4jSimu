@@ -13,37 +13,14 @@
  */
 package com.kv4j.server;
 
-import com.kv4j.message.Message;
-import com.kv4j.message.MessageReply;
+import com.kv4j.server.scheduler.ServerScheduler;
 
-public interface Server {
+public class KV4jSimu {
 
-    String getAddress();
+    private static ServerScheduler scheduler = ServerScheduler.scheduler;
 
-    Message process(Message msg);
-
-    State getState();
-
-    Type getType();
-
-    void replaceDisk(Disk disk);
-
-    Disk getDisk();
-
-    MessageReply send(Message msg);
-
-    void start();
-
-    enum State {
-        DEAD,
-        RUNNING,
-        STOPPED
-    }
-
-    enum Type {
-        LEADER,
-        FOLLOWER,
-        CANDIDATE
+    public static void main(String[] args) {
+        scheduler.start(5);
     }
 
 }

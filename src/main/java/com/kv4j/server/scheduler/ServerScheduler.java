@@ -42,13 +42,13 @@ public class ServerScheduler {
                 Server newServer = null;
                 switch (type) {
                     case LEADER:
-                        newServer = new Leader();
+                        newServer = new Leader(id);
                         break;
                     case FOLLOWER:
-                        newServer = new Follower();
+                        newServer = new Follower(id);
                         break;
                     case CANDIDATE:
-                        newServer = new Candidate();
+                        newServer = new Candidate(id);
                 }
                 newServer.replaceDisk(server.getDisk());
                 servers.put(id, newServer);
@@ -65,7 +65,7 @@ public class ServerScheduler {
     public void start(int initServerNum) {
         for (int i = 0; i < initServerNum ; i++) {
             String id = UUID.randomUUID().toString();
-            Server server = new Follower();
+            Server server = new Follower(id);
             servers.put(id, server);
             server.start();
         }

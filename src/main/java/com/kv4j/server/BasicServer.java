@@ -22,14 +22,20 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public abstract class BasicServer implements Server {
 
-    protected Disk disk = new Disk();
+    private final String address;
+
+    private Disk disk = new Disk();
 
     protected State state = State.STOPPED;
 
     protected BlockingQueue<MessageHolder> mailBox = new LinkedBlockingDeque<>();
 
+    protected BasicServer(String address) {
+        this.address = address;
+    }
+
     public MessageReply send(Message msg) {
-        MessageHolder holder = new MessageHolder(msg);
+        MessageHolder holder = new MessageHolder(msg, address);
         mailBox.add(holder);
         return holder.getReply();
     }
@@ -42,5 +48,10 @@ public abstract class BasicServer implements Server {
     @Override
     public Disk getDisk() {
         return disk;
+    }
+
+    @Override
+    public String getAddress() {
+        return address;
     }
 }

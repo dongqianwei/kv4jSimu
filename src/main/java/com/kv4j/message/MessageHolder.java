@@ -16,10 +16,13 @@ package com.kv4j.message;
 public class MessageHolder {
 
     private Message message;
-    private MessageReply reply = new MessageReply();
 
-    public MessageHolder(Message message) {
+    private String fromAddress;
+    private MessageReply reply = new MessageReply(fromAddress);
+
+    public MessageHolder(Message message, String fromAddress) {
         this.message = message;
+        this.fromAddress = fromAddress;
     }
 
     public Message getMessage() {

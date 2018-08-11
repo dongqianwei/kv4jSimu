@@ -18,7 +18,6 @@ import com.kv4j.message.MessageReply;
 import com.kv4j.message.RequestVoteMessage;
 import com.kv4j.server.BasicServer;
 import com.kv4j.server.KV4jConfig;
-import com.kv4j.server.Server;
 import com.kv4j.server.scheduler.ServerScheduler;
 
 import java.util.List;
@@ -26,6 +25,11 @@ import java.util.List;
 public class Candidate extends BasicServer {
 
     private static ServerScheduler scheduler = ServerScheduler.scheduler;
+
+    public Candidate(String address) {
+        super(address);
+    }
+
 
     @Override
     public Message process(Message msg) {

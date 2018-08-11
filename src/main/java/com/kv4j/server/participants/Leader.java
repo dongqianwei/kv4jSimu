@@ -19,6 +19,10 @@ import com.kv4j.server.BasicServer;
 
 public class Leader extends BasicServer {
 
+
+    public Leader(String address) {
+        super(address);
+    }
     @Override
     public Message process(Message msg) {
         if (msg instanceof UserMessage) {
