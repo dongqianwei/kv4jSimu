@@ -50,7 +50,7 @@ public class ServerScheduler {
                     case CANDIDATE:
                         newServer = new Candidate(id);
                 }
-                newServer.replaceDisk(server.getDisk());
+                newServer.replaceStorage(server.getStorage());
                 servers.put(id, newServer);
                 newServer.start();
             }

@@ -56,6 +56,7 @@ public class Candidate extends BasicServer {
                 throw new RuntimeException(e);
             }
             List<MessageReply> replies = scheduler.broadcast(new RequestVoteMessage());
+
         });
     }
 

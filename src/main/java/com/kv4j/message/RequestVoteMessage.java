@@ -14,4 +14,8 @@
 package com.kv4j.message;
 
 public class RequestVoteMessage implements Message {
+
+    private int term;
+    private String voteFor;
+
 }

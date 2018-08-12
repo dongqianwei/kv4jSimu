@@ -24,7 +24,7 @@ public abstract class BasicServer implements Server {
 
     private final String address;
 
-    private Disk disk = new Disk();
+    private Storage storage = new Storage();
 
     protected State state = State.STOPPED;
 
@@ -41,13 +41,13 @@ public abstract class BasicServer implements Server {
     }
 
     @Override
-    public void replaceDisk(Disk disk) {
-        this.disk = disk;
+    public void replaceStorage(Storage storage) {
+        this.storage = storage;
     }
 
     @Override
-    public Disk getDisk() {
-        return disk;
+    public Storage getStorage() {
+        return storage;
     }
 
     @Override

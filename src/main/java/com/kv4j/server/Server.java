@@ -26,9 +26,9 @@ public interface Server {
 
     Type getType();
 
-    void replaceDisk(Disk disk);
+    void replaceStorage(Storage storage);
 
-    Disk getDisk();
+    Storage getStorage();
 
     MessageReply send(Message msg);
 
