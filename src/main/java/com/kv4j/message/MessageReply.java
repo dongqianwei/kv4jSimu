@@ -15,6 +15,8 @@ package com.kv4j.message;
 
 import com.kv4j.server.KV4jIllegalOperationException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
@@ -26,6 +28,10 @@ public class MessageReply {
 
     private ReentrantLock lock = new ReentrantLock();
     private Condition condition = lock.newCondition();
+
+    private static ReentrantLock sharedLock = new ReentrantLock();
+    private static Condition sharedCondition = sharedLock.newCondition();
+
     private String fromAddress;
 
     public MessageReply(String fromAddress) {
@@ -48,13 +54,16 @@ public class MessageReply {
 
     public void set(Message reply) {
         lock.lock();
+        sharedLock.lock();
         try {
             if (!replyRef.compareAndSet(null, reply)) {
                 throw new KV4jIllegalOperationException("MessageReply already set");
             }
+            sharedCondition.signalAll();
             condition.signalAll();
         }
         finally {
+            sharedLock.unlock();
             lock.unlock();
         }
 
@@ -62,5 +71,32 @@ public class MessageReply {
 
     public String getFromAddress() {
         return fromAddress;
+    }
+
+    public static List<MessageReply> selectReplies(List<MessageReply> replies) {
+        sharedLock.lock();
+        try {
+            while(true) {
+                List<MessageReply> ret = new ArrayList<>();
+                for (MessageReply reply : replies) {
+                    if (reply.replyRef.get() != null) {
+                        ret.add(reply);
+                    }
+                }
+                if (ret.size() > 0) {
+                    return ret;
+                }
+                else {
+                    try {
+                        sharedCondition.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        finally {
+            sharedLock.unlock();
+        }
     }
 }
