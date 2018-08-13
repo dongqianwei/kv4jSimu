@@ -13,5 +13,6 @@
  */
 package com.kv4j.message;
 
-public class AppendEntriesMessage implements Message {
+public class AppendEntriesMessage extends RaftMessage {
+
 }

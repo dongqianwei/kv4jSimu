@@ -16,11 +16,12 @@ package com.kv4j.server;
 import com.kv4j.message.Message;
 import com.kv4j.message.MessageReply;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 public interface Server {
 
     String getAddress();
-
-    Message process(Message msg);
 
     State getState();
 
@@ -31,6 +32,8 @@ public interface Server {
     Storage getStorage();
 
     MessageReply send(Message msg);
+
+    MessageReply send(Message msg, ReentrantLock lock, Condition condition);
 
     void start();
 

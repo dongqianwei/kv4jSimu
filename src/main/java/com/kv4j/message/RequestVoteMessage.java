@@ -13,9 +13,8 @@
  */
 package com.kv4j.message;
 
-public class RequestVoteMessage implements Message {
+public class RequestVoteMessage extends RaftMessage {
 
-    private int term;
     private String voteFor;
 
 }

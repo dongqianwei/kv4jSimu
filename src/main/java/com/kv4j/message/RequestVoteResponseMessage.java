@@ -11,14 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kv4j.server;
+package com.kv4j.message;
 
-public class KV4jSimu {
+public class RequestVoteResponseMessage extends RaftMessage {
 
-    private static ServerScheduler scheduler = ServerScheduler.scheduler;
+    private final boolean granted;
 
-    public static void main(String[] args) {
-        scheduler.start(5);
+
+    public RequestVoteResponseMessage(boolean granted) {
+        this.granted = granted;
     }
 
+
+    public boolean isGranted() {
+        return granted;
+    }
 }

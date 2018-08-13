@@ -17,18 +17,18 @@ import com.kv4j.message.Message;
 import com.kv4j.message.UserMessage;
 import com.kv4j.server.BasicServer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Leader extends BasicServer {
 
 
+    private Map<String, Integer> nextIdx = new HashMap<>();
+
+    private Map<String, Integer> matchedIdx = new HashMap<>();
+
     public Leader(String address) {
         super(address);
-    }
-    @Override
-    public Message process(Message msg) {
-        if (msg instanceof UserMessage) {
-            UserMessage uMsg = (UserMessage) msg;
-        }
-        return null;
     }
 
     @Override

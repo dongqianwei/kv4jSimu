@@ -13,7 +13,7 @@
  */
 package com.kv4j.server;
 
-public class KV4jSimu {
+public class KV4jServerMain {
 
     private static ServerScheduler scheduler = ServerScheduler.scheduler;
 

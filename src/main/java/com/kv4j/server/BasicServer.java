@@ -19,6 +19,8 @@ import com.kv4j.message.MessageReply;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class BasicServer implements Server {
 
@@ -34,8 +36,16 @@ public abstract class BasicServer implements Server {
         this.address = address;
     }
 
+    @Override
     public MessageReply send(Message msg) {
         MessageHolder holder = new MessageHolder(msg, address);
+        mailBox.add(holder);
+        return holder.getReply();
+    }
+
+    @Override
+    public MessageReply send(Message msg, ReentrantLock lock, Condition condition) {
+        MessageHolder holder = new MessageHolder(msg, address, lock, condition);
         mailBox.add(holder);
         return holder.getReply();
     }

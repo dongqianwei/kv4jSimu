@@ -26,16 +26,21 @@ public class MessageReply {
 
     private AtomicReference<Message> replyRef = new AtomicReference<>();
 
-    private ReentrantLock lock = new ReentrantLock();
-    private Condition condition = lock.newCondition();
-
-    private static ReentrantLock sharedLock = new ReentrantLock();
-    private static Condition sharedCondition = sharedLock.newCondition();
+    private ReentrantLock lock;
+    private Condition condition;
 
     private String fromAddress;
 
     public MessageReply(String fromAddress) {
         this.fromAddress = fromAddress;
+        lock = new ReentrantLock();
+        condition = lock.newCondition();
+    }
+
+    public MessageReply(String fromAddress, ReentrantLock lock, Condition condition) {
+        this.fromAddress = fromAddress;
+        this.lock = lock;
+        this.condition = condition;
     }
 
     public Message get(long timeout, TimeUnit unit) throws InterruptedException {
@@ -54,16 +59,13 @@ public class MessageReply {
 
     public void set(Message reply) {
         lock.lock();
-        sharedLock.lock();
         try {
             if (!replyRef.compareAndSet(null, reply)) {
                 throw new KV4jIllegalOperationException("MessageReply already set");
             }
-            sharedCondition.signalAll();
             condition.signalAll();
         }
         finally {
-            sharedLock.unlock();
             lock.unlock();
         }
 
@@ -73,7 +75,10 @@ public class MessageReply {
         return fromAddress;
     }
 
-    public static List<MessageReply> selectReplies(List<MessageReply> replies) {
+    public static List<MessageReply> selectReplies(
+            List<MessageReply> replies,
+            ReentrantLock sharedLock,
+            Condition sharedCondition) {
         sharedLock.lock();
         try {
             while(true) {

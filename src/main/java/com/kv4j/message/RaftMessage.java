@@ -11,14 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kv4j.server;
+package com.kv4j.message;
 
-public class KV4jSimu {
+public abstract class RaftMessage implements Message {
 
-    private static ServerScheduler scheduler = ServerScheduler.scheduler;
+    protected int term;
 
-    public static void main(String[] args) {
-        scheduler.start(5);
+    public void setTerm(int term) {
+        this.term = term;
+    }
+
+    public int getTerm() {
+        return this.term;
     }
 
 }

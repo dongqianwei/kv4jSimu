@@ -13,16 +13,23 @@
  */
 package com.kv4j.message;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class MessageHolder {
 
     private Message message;
 
-    private String fromAddress;
-    private MessageReply reply = new MessageReply(fromAddress);
+    private MessageReply reply;
 
     public MessageHolder(Message message, String fromAddress) {
         this.message = message;
-        this.fromAddress = fromAddress;
+        this.reply = new MessageReply(fromAddress);
+    }
+
+    public MessageHolder(Message message, String fromAddress, ReentrantLock lock, Condition condition) {
+        this.message = message;
+        this.reply = new MessageReply(fromAddress, lock, condition);
     }
 
     public Message getMessage() {

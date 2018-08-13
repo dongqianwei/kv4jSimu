@@ -11,21 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kv4j.server.scheduler;
+package com.kv4j.server;
 
 import com.kv4j.message.Message;
-import com.kv4j.message.MessageHolder;
 import com.kv4j.message.MessageReply;
-import com.kv4j.server.BasicServer;
 import com.kv4j.server.participants.Candidate;
 import com.kv4j.server.participants.Follower;
-import com.kv4j.server.Server;
 import com.kv4j.server.participants.Leader;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ServerScheduler {
 
@@ -71,12 +70,20 @@ public class ServerScheduler {
         }
     }
 
-    public List<MessageReply> broadcast(Message message) {
+    public List<MessageReply> broadcast(Message message, ReentrantLock lock, Condition condition) {
         List<MessageReply> msgs = new ArrayList<>();
         servers.forEach((id, server) -> {
-            msgs.add(server.send(message));
+            msgs.add(server.send(message, lock, condition));
         });
         return msgs;
+    }
+
+    public MessageReply sendMessage(String address, Message message) {
+        Server server = servers.get(address);
+        if (server == null) {
+            throw new KV4jIllegalOperationException(String.format("server %s does not exist", address));
+        }
+        return server.send(message);
     }
 
 }

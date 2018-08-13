@@ -13,26 +13,25 @@
  */
 package com.kv4j.server.participants;
 
-import com.kv4j.message.Message;
 import com.kv4j.message.MessageHolder;
 import com.kv4j.server.BasicServer;
 import com.kv4j.server.KV4jConfig;
-import com.kv4j.server.scheduler.ServerScheduler;
+import com.kv4j.server.ServerScheduler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
 public class Follower extends BasicServer {
 
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+
     public Follower(String address) {
         super(address);
     }
 
-
-    @Override
-    public Message process(Message msg) {
-        return null;
-    }
 
     @Override
     public State getState() {
@@ -53,6 +52,7 @@ public class Follower extends BasicServer {
                 // heartbeat timeout
                 // wait for random time and convert to candidate
                 if (mh == null) {
+                    logger.warn(String.format("Follower %s timeout, convert To candidate", getAddress()));
                     state = State.STOPPED;
                     ServerScheduler.scheduler.convertTo(this, Type.CANDIDATE);
                 }
