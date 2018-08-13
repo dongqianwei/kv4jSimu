@@ -15,13 +15,12 @@ package com.kv4j.server.participants;
 
 import com.kv4j.message.*;
 import com.kv4j.server.BasicServer;
-import com.kv4j.server.KV4jConfig;
 import com.kv4j.server.KV4jIllegalOperationException;
 import com.kv4j.server.ServerScheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,8 +28,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Candidate extends BasicServer {
 
     private Logger logger = LogManager.getLogger(this.getClass());
-
-    private static ServerScheduler scheduler = ServerScheduler.scheduler;
 
     public Candidate(String address) {
         super(address);
@@ -78,11 +75,33 @@ public class Candidate extends BasicServer {
 
         // start thread for vote process
         scheduler.executor.submit(() -> {
+            int numGranted = 0;
             ReentrantLock sharedLock = new ReentrantLock();
             Condition sharedCondition = sharedLock.newCondition();
-            List<MessageReply> replies = scheduler.broadcast(new RequestVoteMessage().setTerm(curTerm()).incTerm(), sharedLock, sharedCondition);
+            Set<MessageReply> replies = scheduler.broadcast(new RequestVoteMessage()
+                    .setTerm(curTerm())
+                    .incTerm()
+                    .setFromAddress(getAddress()), sharedLock, sharedCondition);
             while (true) {
-                List<MessageReply> retReplies = MessageReply.selectReplies(replies, sharedLock, sharedCondition);
+                Set<MessageReply> retReplies = MessageReply.selectReplies(replies, sharedLock, sharedCondition);
+                for (MessageReply r: retReplies) {
+                    replies.remove(r);
+                    if (!(r.get() instanceof VoteResponseMessage)) {
+                        throw new KV4jIllegalOperationException("requestVote response type error: " + r.get().getClass());
+                    }
+
+                    VoteResponseMessage vrMsg = (VoteResponseMessage) r.get();
+                    if (vrMsg.isGranted()) {
+                        numGranted ++;
+                    }
+
+                    // get majority votes, become leader
+                    if (numGranted > scheduler.majorityServerNum()) {
+                        this.state = State.STOPPED;
+                        scheduler.convertTo(this, Type.LEADER);
+                        return;
+                    }
+                }
             }
         });
     }

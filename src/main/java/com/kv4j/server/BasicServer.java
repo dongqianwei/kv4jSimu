@@ -24,6 +24,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class BasicServer implements Server {
 
+    protected ServerScheduler scheduler = ServerScheduler.scheduler;
+
     private final String address;
 
     protected Storage storage = new Storage();
@@ -72,4 +74,5 @@ public abstract class BasicServer implements Server {
     public String getAddress() {
         return address;
     }
+
 }

@@ -13,12 +13,12 @@
  */
 package com.kv4j.message;
 
-public class RequestVoteResponseMessage extends RaftMessage {
+public class VoteResponseMessage extends RaftMessage {
 
     private final boolean granted;
 
 
-    public RequestVoteResponseMessage(boolean granted) {
+    public VoteResponseMessage(boolean granted) {
         this.granted = granted;
     }
 

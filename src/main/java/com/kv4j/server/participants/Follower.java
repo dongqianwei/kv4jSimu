@@ -46,7 +46,7 @@ public class Follower extends BasicServer {
     @Override
     public void start() {
 
-        ServerScheduler.scheduler.executor.submit(() -> {
+        scheduler.executor.submit(() -> {
             while(true) {
                 try {
                     MessageHolder mh = mailBox.poll(KV4jConfig.CONFIG.HEARTBEAT_TIMEOUT, TimeUnit.SECONDS);
@@ -64,16 +64,17 @@ public class Follower extends BasicServer {
                     }
                     Message message = mh.getMessage();
                     if (message instanceof AppendEntriesMessage) {
+                        logger.info("server {} receive AppendEntriesMsg", getAddress());
                         //TODO
                     }
                     else if (message instanceof RequestVoteMessage) {
                         RequestVoteMessage vMsg = (RequestVoteMessage) message;
                         if (vMsg.getTerm() > curTerm()) {
                             this.setTerm(vMsg.getTerm());
-                            mh.getReply().set(new RequestVoteResponseMessage(true));
+                            mh.getReply().set(new VoteResponseMessage(true));
                         }
                         else {
-                            mh.getReply().set(new RequestVoteResponseMessage(false));
+                            mh.getReply().set(new VoteResponseMessage(false));
                         }
                     }
                 } catch (InterruptedException e) {

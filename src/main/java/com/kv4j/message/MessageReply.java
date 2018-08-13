@@ -16,7 +16,9 @@ package com.kv4j.message;
 import com.kv4j.server.KV4jIllegalOperationException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
@@ -56,6 +58,10 @@ public class MessageReply {
         }
     }
 
+    public Message get() {
+        return replyRef.get();
+    }
+
 
     public void set(Message reply) {
         lock.lock();
@@ -75,14 +81,14 @@ public class MessageReply {
         return fromAddress;
     }
 
-    public static List<MessageReply> selectReplies(
-            List<MessageReply> replies,
+    public static Set<MessageReply> selectReplies(
+            Set<MessageReply> replies,
             ReentrantLock sharedLock,
             Condition sharedCondition) {
         sharedLock.lock();
         try {
             while(true) {
-                List<MessageReply> ret = new ArrayList<>();
+                Set<MessageReply> ret = new HashSet<>();
                 for (MessageReply reply : replies) {
                     if (reply.replyRef.get() != null) {
                         ret.add(reply);

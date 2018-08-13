@@ -13,7 +13,7 @@
  */
 package com.kv4j.message;
 
-public class UserMessage implements Message {
+public class UserMessage extends BasicMessage {
 
     public enum MsgType {
         ADD,

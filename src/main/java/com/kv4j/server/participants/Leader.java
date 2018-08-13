@@ -13,15 +13,22 @@
  */
 package com.kv4j.server.participants;
 
+import com.kv4j.message.AppendEntriesMessage;
 import com.kv4j.message.Message;
 import com.kv4j.message.UserMessage;
 import com.kv4j.server.BasicServer;
+import com.kv4j.server.KV4jConfig;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Leader extends BasicServer {
 
+
+    public ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
 
     private Map<String, Integer> nextIdx = new HashMap<>();
 
@@ -43,7 +50,10 @@ public class Leader extends BasicServer {
 
     @Override
     public void start() {
-
+        // heartbeat thread
+        scheduledExecutor.scheduleWithFixedDelay(() -> {
+            scheduler.broadcast(new AppendEntriesMessage().setFromAddress(getAddress()));
+        }, 0, KV4jConfig.CONFIG.HEARTBEAT, TimeUnit.SECONDS);
     }
 
 }

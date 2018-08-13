@@ -13,22 +13,30 @@
  */
 package com.kv4j.message;
 
-public abstract class RaftMessage extends BasicMessage {
+public abstract class BasicMessage implements Message {
 
-    protected int term;
 
-    public RaftMessage setTerm(int term) {
-        this.term = term;
+    private String fromAddress, toAddress;
+
+    @Override
+    public String getFromAddress() {
+        return fromAddress;
+    }
+
+    @Override
+    public String getToAddress() {
+        return toAddress;
+    }
+
+    @Override
+    public Message setFromAddress(String address) {
+        this.fromAddress = address;
         return this;
     }
 
-    public RaftMessage incTerm() {
-        this.term ++;
+    @Override
+    public Message setToAddress(String address) {
+        this.toAddress = address;
         return this;
     }
-
-    public int getTerm() {
-        return this.term;
-    }
-
 }

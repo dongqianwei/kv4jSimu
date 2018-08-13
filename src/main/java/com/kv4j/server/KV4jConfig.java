@@ -17,8 +17,10 @@ public enum  KV4jConfig {
 
     CONFIG;
 
-    public final int HEARTBEAT_TIMEOUT = 3; // SECOND
+    public final int HEARTBEAT = 3; // SECOND
 
-    public final int VOTE_WAIT_TIME = 500; // MINISECONDS
+    public final int HEARTBEAT_TIMEOUT = 5; // SECOND
+
+    public final int VOTE_WAIT_TIME = 600; // MINISECONDS
 
 }

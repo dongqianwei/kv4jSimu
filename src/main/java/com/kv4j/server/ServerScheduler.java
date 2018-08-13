@@ -18,18 +18,26 @@ import com.kv4j.message.MessageReply;
 import com.kv4j.server.participants.Candidate;
 import com.kv4j.server.participants.Follower;
 import com.kv4j.server.participants.Leader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ServerScheduler {
 
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
+
     public static ServerScheduler scheduler = new ServerScheduler();
+
+    private int serverNum = 0;
 
     private ServerScheduler() {
         //
@@ -38,6 +46,7 @@ public class ServerScheduler {
     public void convertTo(Server server, Server.Type type) {
         for (String id : servers.keySet()) {
             if (servers.get(id) == server) {
+                logger.info("server {} convert from {} to {}", id, server.getType(), type);
                 Server newServer = null;
                 switch (type) {
                     case LEADER:
@@ -67,18 +76,40 @@ public class ServerScheduler {
             Server server = new Follower(id);
             servers.put(id, server);
             server.start();
+            serverNum ++;
         }
     }
 
-    public List<MessageReply> broadcast(Message message, ReentrantLock lock, Condition condition) {
-        List<MessageReply> msgs = new ArrayList<>();
+    public int serverNum() {
+        return serverNum;
+    }
+
+    public int majorityServerNum() {
+        return serverNum / 2 + 1;
+    }
+
+    public void broadcast(Message message) {
         servers.forEach((id, server) -> {
-            msgs.add(server.send(message, lock, condition));
+            if (message.getFromAddress().equals(id)) {
+                return;
+            }
+            server.send(message.setToAddress(id));
+        });
+    }
+
+    public Set<MessageReply> broadcast(Message message, ReentrantLock lock, Condition condition) {
+        Set<MessageReply> msgs = new HashSet<>();
+        servers.forEach((id, server) -> {
+            if (message.getFromAddress().equals(id)) {
+                return;
+            }
+            msgs.add(server.send(message.setToAddress(id), lock, condition));
         });
         return msgs;
     }
 
     public MessageReply sendMessage(String address, Message message) {
+        message.setToAddress(address);
         Server server = servers.get(address);
         if (server == null) {
             throw new KV4jIllegalOperationException(String.format("server %s does not exist", address));
