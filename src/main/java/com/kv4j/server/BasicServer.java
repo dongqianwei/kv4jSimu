@@ -26,7 +26,7 @@ public abstract class BasicServer implements Server {
 
     private final String address;
 
-    private Storage storage = new Storage();
+    protected Storage storage = new Storage();
 
     protected State state = State.STOPPED;
 
@@ -34,6 +34,14 @@ public abstract class BasicServer implements Server {
 
     protected BasicServer(String address) {
         this.address = address;
+    }
+
+    public int curTerm() {
+        return this.getStorage().getDisk().getCurrentTerm();
+    }
+
+    public void setTerm(int term) {
+        this.getStorage().getDisk().setCurrentTerm(term);
     }
 
     @Override

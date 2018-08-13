@@ -17,8 +17,14 @@ public abstract class RaftMessage implements Message {
 
     protected int term;
 
-    public void setTerm(int term) {
+    public RaftMessage setTerm(int term) {
         this.term = term;
+        return this;
+    }
+
+    public RaftMessage incTerm() {
+        this.term ++;
+        return this;
     }
 
     public int getTerm() {

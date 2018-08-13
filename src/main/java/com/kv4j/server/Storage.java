@@ -21,6 +21,23 @@ import java.util.List;
 import java.util.Map;
 
 public class Storage {
+
+    private final Disk disk = new Disk();
+    private final Memory memory = new Memory();
+    private final List<LogEntry> logs = new ArrayList<>();
+
+    public Disk getDisk() {
+        return disk;
+    }
+
+    public Memory getMemory() {
+        return memory;
+    }
+
+    public List<LogEntry> getLogs() {
+        return logs;
+    }
+
     public static class Disk {
 
         private Map<String,String> data = new HashMap<>();

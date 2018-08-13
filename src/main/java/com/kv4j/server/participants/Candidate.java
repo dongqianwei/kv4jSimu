@@ -13,12 +13,10 @@
  */
 package com.kv4j.server.participants;
 
-import com.kv4j.message.Message;
-import com.kv4j.message.MessageHolder;
-import com.kv4j.message.MessageReply;
-import com.kv4j.message.RequestVoteMessage;
+import com.kv4j.message.*;
 import com.kv4j.server.BasicServer;
 import com.kv4j.server.KV4jConfig;
+import com.kv4j.server.KV4jIllegalOperationException;
 import com.kv4j.server.ServerScheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,20 +58,29 @@ public class Candidate extends BasicServer {
 
                 Message message = mh.getMessage();
                 logger.info("got message<{}>", message.getClass());
+
+                if (message instanceof UserMessage) {
+                    throw new KV4jIllegalOperationException("UserMessage Not Allowed here!");
+                }
+
+                if (message instanceof RaftMessage) {
+                    RaftMessage rMsg = (RaftMessage) message;
+                    // if msg term > curTerm
+                    // convert to Follower
+                    if (rMsg.getTerm() > curTerm()) {
+                        // TODO
+                        this.state = State.STOPPED;
+                        scheduler.convertTo(this, Type.FOLLOWER);
+                    }
+                }
             }
         });
 
         // start thread for vote process
         scheduler.executor.submit(() -> {
-            // wait for random time and request vote
-            try {
-                Thread.sleep((long)(Math.random() * KV4jConfig.CONFIG.VOTE_WAIT_TIME));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             ReentrantLock sharedLock = new ReentrantLock();
             Condition sharedCondition = sharedLock.newCondition();
-            List<MessageReply> replies = scheduler.broadcast(new RequestVoteMessage(), sharedLock, sharedCondition);
+            List<MessageReply> replies = scheduler.broadcast(new RequestVoteMessage().setTerm(curTerm()).incTerm(), sharedLock, sharedCondition);
             while (true) {
                 List<MessageReply> retReplies = MessageReply.selectReplies(replies, sharedLock, sharedCondition);
             }

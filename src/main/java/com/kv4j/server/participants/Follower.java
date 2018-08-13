@@ -13,7 +13,7 @@
  */
 package com.kv4j.server.participants;
 
-import com.kv4j.message.MessageHolder;
+import com.kv4j.message.*;
 import com.kv4j.server.BasicServer;
 import com.kv4j.server.KV4jConfig;
 import com.kv4j.server.ServerScheduler;
@@ -47,17 +47,38 @@ public class Follower extends BasicServer {
     public void start() {
 
         ServerScheduler.scheduler.executor.submit(() -> {
-            try {
-                MessageHolder mh = mailBox.poll(KV4jConfig.CONFIG.HEARTBEAT_TIMEOUT, TimeUnit.SECONDS);
-                // heartbeat timeout
-                // wait for random time and convert to candidate
-                if (mh == null) {
-                    logger.warn(String.format("Follower %s timeout, convert To candidate", getAddress()));
-                    state = State.STOPPED;
-                    ServerScheduler.scheduler.convertTo(this, Type.CANDIDATE);
+            while(true) {
+                try {
+                    MessageHolder mh = mailBox.poll(KV4jConfig.CONFIG.HEARTBEAT_TIMEOUT, TimeUnit.SECONDS);
+                    if (mh == null) {
+                        // wait for random time and request vote
+                        mh = mailBox.poll((long) (Math.random() * KV4jConfig.CONFIG.VOTE_WAIT_TIME), TimeUnit.MILLISECONDS);
+                        // heartbeat timeout
+                        // wait for random time and convert to candidate
+                        if (mh == null) {
+                            logger.warn(String.format("Follower %s timeout, convert To candidate", getAddress()));
+                            state = State.STOPPED;
+                            ServerScheduler.scheduler.convertTo(this, Type.CANDIDATE);
+                            return;
+                        }
+                    }
+                    Message message = mh.getMessage();
+                    if (message instanceof AppendEntriesMessage) {
+                        //TODO
+                    }
+                    else if (message instanceof RequestVoteMessage) {
+                        RequestVoteMessage vMsg = (RequestVoteMessage) message;
+                        if (vMsg.getTerm() > curTerm()) {
+                            this.setTerm(vMsg.getTerm());
+                            mh.getReply().set(new RequestVoteResponseMessage(true));
+                        }
+                        else {
+                            mh.getReply().set(new RequestVoteResponseMessage(false));
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         });
     }
