@@ -54,4 +54,13 @@ public class UserMessage extends BasicMessage {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "UserMessage{" +
+                "type=" + type +
+                ", key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

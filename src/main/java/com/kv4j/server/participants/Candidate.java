@@ -45,6 +45,8 @@ public class Candidate extends BasicServer {
 
     @Override
     public void start() {
+
+        this.state = State.RUNNING;
         // start process for message handling
         scheduler.executor.submit(() -> {
             while(true) {
@@ -65,7 +67,7 @@ public class Candidate extends BasicServer {
                     // if msg term > curTerm
                     // convert to Follower
                     if (rMsg.getTerm() > curTerm()) {
-                        // TODO
+                        this.setTerm(rMsg.getTerm());
                         this.state = State.STOPPED;
                         scheduler.convertTo(this, Type.FOLLOWER);
                     }
@@ -100,6 +102,10 @@ public class Candidate extends BasicServer {
                         this.state = State.STOPPED;
                         scheduler.convertTo(this, Type.LEADER);
                         return;
+                    }
+
+                    if (replies.size() == 0) {
+                        logger.warn("failed to got more than half votes");
                     }
                 }
             }

@@ -22,14 +22,14 @@ public class MessageHolder {
 
     private MessageReply reply;
 
-    public MessageHolder(Message message, String fromAddress) {
+    public MessageHolder(Message message) {
         this.message = message;
-        this.reply = new MessageReply(fromAddress);
+        this.reply = new MessageReply();
     }
 
-    public MessageHolder(Message message, String fromAddress, ReentrantLock lock, Condition condition) {
+    public MessageHolder(Message message, ReentrantLock lock, Condition condition) {
         this.message = message;
-        this.reply = new MessageReply(fromAddress, lock, condition);
+        this.reply = new MessageReply(lock, condition);
     }
 
     public Message getMessage() {

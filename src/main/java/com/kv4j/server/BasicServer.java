@@ -30,7 +30,7 @@ public abstract class BasicServer implements Server {
 
     protected Storage storage = new Storage();
 
-    protected State state = State.STOPPED;
+    protected volatile State state = State.STOPPED;
 
     protected BlockingQueue<MessageHolder> mailBox = new LinkedBlockingDeque<>();
 
@@ -48,14 +48,14 @@ public abstract class BasicServer implements Server {
 
     @Override
     public MessageReply send(Message msg) {
-        MessageHolder holder = new MessageHolder(msg, address);
+        MessageHolder holder = new MessageHolder(msg);
         mailBox.add(holder);
         return holder.getReply();
     }
 
     @Override
     public MessageReply send(Message msg, ReentrantLock lock, Condition condition) {
-        MessageHolder holder = new MessageHolder(msg, address, lock, condition);
+        MessageHolder holder = new MessageHolder(msg, lock, condition);
         mailBox.add(holder);
         return holder.getReply();
     }

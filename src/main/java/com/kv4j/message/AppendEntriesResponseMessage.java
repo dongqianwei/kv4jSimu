@@ -11,14 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kv4j.server;
+package com.kv4j.message;
 
-public class KV4jServerMain {
+public class AppendEntriesResponseMessage extends RaftMessage {
 
-    private static ServerScheduler scheduler = ServerScheduler.scheduler;
+    private boolean success;
 
-    public static void main(String[] args) {
-        scheduler.start(5);
+    public AppendEntriesResponseMessage(boolean success) {
+        this.success = success;
     }
 
+    public boolean isSuccess() {
+        return success;
+    }
 }

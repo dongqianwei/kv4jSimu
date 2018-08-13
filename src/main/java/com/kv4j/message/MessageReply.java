@@ -15,9 +15,7 @@ package com.kv4j.message;
 
 import com.kv4j.server.KV4jIllegalOperationException;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,16 +29,12 @@ public class MessageReply {
     private ReentrantLock lock;
     private Condition condition;
 
-    private String fromAddress;
-
-    public MessageReply(String fromAddress) {
-        this.fromAddress = fromAddress;
+    public MessageReply() {
         lock = new ReentrantLock();
         condition = lock.newCondition();
     }
 
-    public MessageReply(String fromAddress, ReentrantLock lock, Condition condition) {
-        this.fromAddress = fromAddress;
+    public MessageReply(ReentrantLock lock, Condition condition) {
         this.lock = lock;
         this.condition = condition;
     }
@@ -75,10 +69,6 @@ public class MessageReply {
             lock.unlock();
         }
 
-    }
-
-    public String getFromAddress() {
-        return fromAddress;
     }
 
     public static Set<MessageReply> selectReplies(

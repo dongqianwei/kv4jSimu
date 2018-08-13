@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -43,24 +43,33 @@ public class ServerScheduler {
         //
     }
 
+    private AtomicReference<String> leaderAddrRef = new AtomicReference<>();
+
+    public Optional<String> leaderAddr() {
+        return Optional.ofNullable(leaderAddrRef.get());
+    }
+
     public void convertTo(Server server, Server.Type type) {
-        for (String id : servers.keySet()) {
-            if (servers.get(id) == server) {
-                logger.info("server {} convert from {} to {}", id, server.getType(), type);
+        for (String addr : servers.keySet()) {
+            if (servers.get(addr) == server) {
+                logger.info("server {} convert from {} to {}", addr, server.getType(), type);
                 Server newServer = null;
                 switch (type) {
                     case LEADER:
-                        newServer = new Leader(id);
+                        newServer = new Leader(addr);
                         break;
                     case FOLLOWER:
-                        newServer = new Follower(id);
+                        newServer = new Follower(addr);
                         break;
                     case CANDIDATE:
-                        newServer = new Candidate(id);
+                        newServer = new Candidate(addr);
                 }
                 newServer.replaceStorage(server.getStorage());
-                servers.put(id, newServer);
+                servers.put(addr, newServer);
                 newServer.start();
+                if (type == Server.Type.LEADER) {
+                    leaderAddrRef.set(addr);
+                }
             }
         }
     }

@@ -13,6 +13,31 @@
  */
 package com.kv4j.message;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class AppendEntriesMessage extends RaftMessage {
+
+    private final List<UserMessage> userMessages = new ArrayList<>();
+
+    private int prevLogIdx;
+
+    private int prevLogTerm;
+
+    private int leaderCommitIdx;
+
+    public boolean isHeartbeat() {
+        return userMessages.size() == 0;
+    }
+
+    public AppendEntriesMessage addUserMsg(UserMessage... msgs) {
+        userMessages.addAll(Arrays.asList(msgs));
+        return this;
+    }
+
+    public List<UserMessage> getUserMessages() {
+        return userMessages;
+    }
 
 }

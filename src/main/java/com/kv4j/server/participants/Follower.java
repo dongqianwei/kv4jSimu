@@ -46,6 +46,8 @@ public class Follower extends BasicServer {
     @Override
     public void start() {
 
+        this.state = State.RUNNING;
+
         scheduler.executor.submit(() -> {
             while(true) {
                 try {
@@ -64,6 +66,11 @@ public class Follower extends BasicServer {
                     }
                     Message message = mh.getMessage();
                     if (message instanceof AppendEntriesMessage) {
+                        AppendEntriesMessage aeMsg = (AppendEntriesMessage) message;
+                        if (aeMsg.isHeartbeat()) {
+                            logger.trace("heartbeat..");
+                            continue;
+                        }
                         logger.info("server {} receive AppendEntriesMsg", getAddress());
                         //TODO
                     }
