@@ -46,6 +46,10 @@ public abstract class BasicServer implements Server {
         this.getStorage().getDisk().setCurrentTerm(term);
     }
 
+    public void incTerm() {
+        this.setTerm(this.curTerm() + 1);
+    }
+
     @Override
     public MessageReply send(Message msg) {
         MessageHolder holder = new MessageHolder(msg);

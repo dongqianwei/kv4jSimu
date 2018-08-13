@@ -15,15 +15,10 @@ package com.kv4j.message;
 
 public abstract class RaftMessage extends BasicMessage {
 
-    protected int term;
+    private int term;
 
     public RaftMessage setTerm(int term) {
         this.term = term;
-        return this;
-    }
-
-    public RaftMessage incTerm() {
-        this.term ++;
         return this;
     }
 

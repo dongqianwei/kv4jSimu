@@ -11,11 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kv4j.message;
+package com.kv4j.server;
 
-public class RequestVoteMessage extends RaftMessage {
-
-    private int lastLogIdx;
-    private int lastLogTerm;
-
+public class KV4jCheckedException extends Exception {
 }

@@ -13,8 +13,10 @@
  */
 package com.kv4j.message;
 
+import com.kv4j.server.KV4jCheckedException;
 import com.kv4j.server.KV4jIllegalOperationException;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -71,10 +73,10 @@ public class MessageReply {
 
     }
 
-    public static Set<MessageReply> selectReplies(
+    public static Set<MessageReply> selectRepliesUnitl(
             Set<MessageReply> replies,
             ReentrantLock sharedLock,
-            Condition sharedCondition) {
+            Condition sharedCondition, Date timeout) throws KV4jCheckedException {
         sharedLock.lock();
         try {
             while(true) {
@@ -89,7 +91,9 @@ public class MessageReply {
                 }
                 else {
                     try {
-                        sharedCondition.await();
+                        if (!sharedCondition.awaitUntil(timeout)) {
+                            throw new KV4jCheckedException();
+                        }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
