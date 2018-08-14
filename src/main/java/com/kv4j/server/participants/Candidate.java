@@ -102,7 +102,7 @@ public class Candidate extends BasicServer {
                 calendar.add(Calendar.MILLISECOND, (int)(Math.random() * KV4jConfig.CONFIG.VOTE_WAIT_TIME));
                 Date timeout = calendar.getTime();
 
-                Set<MessageReply> retReplies = null;
+                Set<MessageReply> retReplies;
                 try {
                     retReplies = MessageReply.selectRepliesUnitl(replies, sharedLock, sharedCondition, timeout);
                 } catch (KV4jCheckedException e) {
@@ -120,6 +120,8 @@ public class Candidate extends BasicServer {
                     VoteResponseMessage vrMsg = (VoteResponseMessage) r.get();
                     if (vrMsg.isGranted()) {
                         numGranted ++;
+                    } else {
+                        // TODO
                     }
 
                     // get majority votes, become leader

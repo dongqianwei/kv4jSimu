@@ -81,7 +81,7 @@ public class Follower extends BasicServer {
                             mh.getReply().set(new VoteResponseMessage(true));
                         }
                         else {
-                            mh.getReply().set(new VoteResponseMessage(false));
+                            mh.getReply().set(new VoteResponseMessage(false).setTerm(curTerm()));
                         }
                     }
                 } catch (InterruptedException e) {

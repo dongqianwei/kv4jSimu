@@ -79,4 +79,8 @@ public abstract class BasicServer implements Server {
         return address;
     }
 
+    public int lastLogIdx() {
+        return storage.getDisk().getLogs().size() - 1;
+    }
+
 }

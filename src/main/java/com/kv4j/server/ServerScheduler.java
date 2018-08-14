@@ -37,6 +37,8 @@ public class ServerScheduler {
 
     public static ServerScheduler scheduler = new ServerScheduler();
 
+    private List<String> addrList = new ArrayList<>();
+
     private int serverNum = 0;
 
     private ServerScheduler() {
@@ -48,6 +50,7 @@ public class ServerScheduler {
     public Optional<String> leaderAddr() {
         return Optional.ofNullable(leaderAddrRef.get());
     }
+
 
     public void convertTo(Server server, Server.Type type) {
         for (String addr : servers.keySet()) {
@@ -81,16 +84,21 @@ public class ServerScheduler {
 
     public void start(int initServerNum) {
         for (int i = 0; i < initServerNum ; i++) {
-            String id = UUID.randomUUID().toString();
-            Server server = new Follower(id);
-            servers.put(id, server);
+            String addr = UUID.randomUUID().toString();
+            Server server = new Follower(addr);
+            servers.put(addr, server);
             server.start();
             serverNum ++;
+            addrList.add(addr);
         }
     }
 
     public int serverNum() {
         return serverNum;
+    }
+
+    public List<String> getAddrList() {
+        return addrList;
     }
 
     public int majorityServerNum() {

@@ -18,4 +18,14 @@ public class RequestVoteMessage extends RaftMessage {
     private int lastLogIdx;
     private int lastLogTerm;
 
+    public RequestVoteMessage setLastLogIdx(int idx) {
+        this.lastLogIdx = idx;
+        return this;
+    }
+
+    public RequestVoteMessage setLastLogTerm(int term) {
+        this.lastLogTerm = term;
+        return this;
+    }
+
 }

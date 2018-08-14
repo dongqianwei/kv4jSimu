@@ -20,10 +20,12 @@ import com.kv4j.message.UserMessage;
 import com.kv4j.server.BasicServer;
 import com.kv4j.server.KV4jConfig;
 import com.kv4j.server.ServerScheduler;
+import com.kv4j.server.Storage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -57,6 +59,7 @@ public class Leader extends BasicServer {
 
     @Override
     public void start() {
+        initLeader();
         this.state = State.RUNNING;
         // heartbeat thread
         scheduledExecutor.scheduleWithFixedDelay(() -> {
@@ -70,8 +73,11 @@ public class Leader extends BasicServer {
             MessageHolder tmpMH = null;
             try {
                 while(state == State.RUNNING) {
-                    while (tmpMH == null && state == State.RUNNING) {
+                    while (tmpMH == null) {
                         tmpMH = mailBox.poll(5, TimeUnit.SECONDS);
+                        if (state != State.RUNNING) {
+                            return;
+                        }
                     }
 
                     MessageHolder mh = tmpMH;
@@ -80,7 +86,8 @@ public class Leader extends BasicServer {
                     Message message = mh.getMessage();
                     if (message instanceof UserMessage) {
                         UserMessage userMsg = (UserMessage) message;
-                        logger.info("recv user message {}", message);
+                        logger.info("LEADER recv user message {}", message);
+                        addLogEntry(userMsg);
                     }
                 }
             } catch (InterruptedException e) {
@@ -89,4 +96,15 @@ public class Leader extends BasicServer {
         });
     }
 
+    private void addLogEntry(UserMessage msg) {
+        this.getStorage().getDisk().getLogs().add(new Storage.LogEntry(curTerm(), msg));
+    }
+
+    private void initLeader() {
+        List<String> addrList = scheduler.getAddrList();
+        for (String addr : addrList) {
+            nextIdx.put(addr, this.lastLogIdx() + 1);
+            matchedIdx.put(addr, 0);
+        }
+    }
 }
